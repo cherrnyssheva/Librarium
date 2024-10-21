@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books - Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #6a5acd;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav form {
+            display: inline-block;
+        }
+
+        nav button {
+            background-color: #6a5acd;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav button:hover {
+            background-color: #836fff;
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+        }
+
+
+        .book-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .book-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            margin: 10px 0;
+            text-align: left;
+            transition: transform 0.2s;
+        }
+
+        .book-card:hover {
+            transform: scale(1.02);
+        }
+
+        .book-card h3 {
+            margin-top: 0;
+            font-size: 1.4rem;
+            color: #6a5acd;
+            font-weight: 600;
+        }
+
+        .book-card p {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .book-card strong {
+            color: #333;
+        }
+
+        .book-card .author-list {
+            color: #6a5acd;
+        }
+
+        footer {
+            background-color: #6a5acd;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+        .sort-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sort-form label {
+            font-size: 1rem;
+            margin-right: 10px;
+        }
+
+        .sort-form select, .sort-form button {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+
+        .sort-form button {
+            background-color: #6a5acd;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .sort-form button:hover {
+            background-color: #836fff;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Books at Library</h1>
+        <nav>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+
+    <main>
+
+        <section class="sort-form">
+            <form method="get" action="{% url 'book_list' %}">
+                <label for="id_sort_by">Sort by:</label>
+                <select id="id_sort_by" name="sort_by">
+                    <option value="">-- Select --</option>
+                    <option value="name" {% if request.GET.sort_by == 'name' %}selected{% endif %}>Name</option>
+                    <option value="count" {% if request.GET.sort_by == 'count' %}selected{% endif %}>Count</option>
+                    <option value="author" {% if request.GET.sort_by == 'author' %}selected{% endif %}>Author</option>
+                </select>
+                <button type="submit">Sort</button>
+            </form>
+        </section>
+
+        <section class="book-list">
+            {% for book in books %}
+                <div class="book-card">
+                    <h3>{{ book.name }}</h3>
+                    <p>{{ book.description }}</p>
+                    <p><strong>Count:</strong> {{ book.count }}</p>
+                    <p><strong>Authors:</strong>
+                        {% for author in book.authors.all %}
+                            <span class="author-list">{{ author.name }} {{ author.surname }}{% if not forloop.last %}, {% endif %}</span>
+                        {% empty %}
+                            No authors
+                        {% endfor %}
+                    </p>
+                </div>
+            {% empty %}
+                <p>No books available.</p>
+            {% endfor %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; Library</p>
+    </footer>
+</body>
+</html>

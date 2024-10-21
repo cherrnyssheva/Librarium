@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authors - Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #6a5acd;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        nav {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        nav form {
+            display: inline-block;
+        }
+
+        nav button {
+            background-color: #6a5acd;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        nav button:hover {
+            background-color: #836fff;
+            transform: scale(1.05);
+        }
+
+        main {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .forms-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .forms-section h2 {
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: #6a5acd;
+            text-align: center;
+        }
+
+        .forms-section form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px; /* Space between form groups */
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            width: 150px;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            flex: 1;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .button-group button {
+            background-color: #6a5acd;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .button-group button:hover {
+            background-color: #836fff;
+            transform: scale(1.05);
+        }
+
+        .author-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .author-card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 600px;
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .author-card h3 {
+            margin-top: 0;
+            font-size: 1.6rem;
+            color: #6a5acd;
+        }
+
+        .author-card p {
+            font-size: 1rem;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        footer {
+            background-color: #6a5acd;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Authors at Library</h1>
+        <nav>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        </nav>
+    </header>
+
+    <main>
+        <section class="forms-section">
+            <h2>Search and Filter Authors</h2>
+            <form method="get" action="{% url 'author_list' %}">
+                <div class="form-group">
+                    <label for="id_search">Search:</label>
+                    <input type="text" id="id_search" name="search" placeholder="Search by name and surname" value="{{ request.GET.search }}">
+                    <div class="button-group">
+                        <button type="submit" name="action" value="search">Search</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="id_filter">Filter by:</label>
+                    <select id="id_filter" name="filter">
+                        <option value="">-- Select --</option>
+                        <option value="name" {% if request.GET.filter == 'name' %}selected{% endif %}>Name</option>
+                        <option value="books_count" {% if request.GET.filter == 'books_count' %}selected{% endif %}>Books Count</option>
+                    </select>
+                    <div class="button-group">
+                        <button type="submit" name="action" value="apply">Apply</button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="author-list">
+            {% for author in authors %}
+                <div class="author-card">
+                    <h3>{{ author.name }} {{ author.surname }}</h3>
+                    <p><strong>Patronymic:</strong> {{ author.patronymic }}</p>
+                    <p><strong>Books Count:</strong> {{ author.book_count }}</p>
+                    <p><strong>Books:</strong>
+                        {% for book in author.books.all %}
+                            {{ book.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            No books
+                        {% endfor %}
+                    </p>
+                </div>
+            {% empty %}
+                <p>No authors available.</p>
+            {% endfor %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; Library</p>
+    </footer>
+</body>
+</html>
